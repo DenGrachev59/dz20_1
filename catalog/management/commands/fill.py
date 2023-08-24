@@ -51,6 +51,7 @@ class Command(BaseCommand):
 
         ]
 
+
         for product_item in product_list:
             Product.objects.create(**product_item)
 
