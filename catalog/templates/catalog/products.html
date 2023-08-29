@@ -13,8 +13,8 @@
                   <p class="card-text">{{object.category| title }} / {{object.name| title}}</p>
                   <div class="d-flex justify-content-between align-items-center">
                     <div class="btn-group">
-                        <p class="card-text"> {{object.description| slice:":100" }}  </p>
-                        <br>
+<!--                        <p class="card-text"> {{object.description| slice:":100" }}  </p>-->
+<!--                        <br>-->
 
 
 
@@ -23,7 +23,8 @@
                     </div>
 
                   </div>
-                      <p class="card-text">Цена: {{object.price| title}} рублей</p>
+<!--                      <p class="card-text">Цена: {{object.price| title}} рублей</p>-->
+                    <a href="{% url 'catalog:product_desc' object.pk %}" type="button" class="btn btn-sm btn-outline-secondary">Подробнее о товаре</a>
                 </div>
               </div>
             </div>
