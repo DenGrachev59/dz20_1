@@ -33,7 +33,10 @@
                 </div>
             </div>
             <div class="col-6">
-                          <img src="/media/{{ object.image }}"/>
+
+                    <img src="/media/{{ object.image }}" onError="this.style.display='none'">
+
+
             </div>
 
         </div>
