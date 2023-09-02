@@ -1,0 +1,42 @@
+{% extends 'catalog/base.html'%}
+
+
+
+{% block content%}
+
+    <div class="col-12">
+        <div class="coll12 mb5">
+            <a class="btn btn-outline-primary mb-5"   href="{% url 'catalog:product_create' %}">Добавить товар</a>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <div class="card">
+                    <div class="card-header">
+
+                        <h3 class="card-title">
+                            Товар {{ object.name }} ({{  object.slug}})
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <p>
+                            {{ object.description }}
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        Просмотры: {{ object.views_count }}
+                    </div>
+                    <div class="card-footer">
+                        <a href="{% url 'catalog:category' object.category.pk %}" type="button" class="btn btn-sm btn-outline-secondary">Назад</a>
+                        <a href="{% url 'catalog:product_update' object.pk %}" type="button" class="btn btn-sm btn-outline-secondary">Редактирование</a>
+                        <a href="{% url 'catalog:product_delete' object.pk %}" type="button" class="btn btn-sm btn-outline-secondary">Удаление</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                          <img src="/media/{{ object.image }}"/>
+            </div>
+
+        </div>
+    </div>
+
+{% endblock %}

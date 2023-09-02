@@ -44,8 +44,8 @@
 
                 <li><a href="{% url 'catalog:index' %}" class="text-white">Главная</a></li>
                 <li><a href="{% url 'catalog:categories' %}" class="text-white">Категории товаров</a></li>
-<!--                <li><a href="#" class="text-white">Like on Facebook</a></li>-->
-<!--                <li><a href="#" class="text-white">Email me</a></li>-->
+                <li><a href="{% url 'blog:list' %}" class="text-white">Публикации</a></li>
+
               </ul>
             </div>
           </div>
@@ -69,16 +69,14 @@
       <section class="jumbotron text-center">
         <div class="container">
           <h1 class="jumbotron-heading">{{ title }}</h1>
-<!--          <p class="lead text-muted">Something short and leading about the collection below—its contents, the creator, etc. Make it short and sweet, but not too short so folks don't simply skip over it entirely.</p>-->
-<!--          <p>-->
-<!--            <a href="#" class="btn btn-primary my-2">Main call to action</a>-->
-<!--            <a href="#" class="btn btn-secondary my-2">Secondary action</a>-->
-<!--          </p>-->
+
         </div>
       </section>
 
       <div class="album py-5 bg-light">
         <div class="container">
+
+
           {% block content %}
           {% endblock %}
 
@@ -91,11 +89,14 @@
     <footer class="text-muted">
       <div class="container">
         <p class="float-right">
+
+          <a href="{% url 'catalog:index' %}">Перейти на Главную страницу</a><br>
           <a href="{% url 'catalog:categories' %}">Все категории</a><br>
-          <a href="{% url 'catalog:index' %}">Перейти на Главную страницу</a>
+          <a href="{% url 'blog:list' %}"> Перейти на страницу c публикациями</a><br>
+
         </p>
-        <p>Album example is &copy; Bootstrap, but please download and customize it for yourself!</p>
-        <p>New to Bootstrap? <a href="/docs/4.0/">Visit the homepage</a> or read our <a href="/docs/4.0/getting-started/">getting started guide</a>.</p>
+<!--        <p>Album example is &copy; Bootstrap, but please download and customize it for yourself!</p>-->
+<!--        <p>New to Bootstrap? <a href="/docs/4.0/">Visit the homepage</a> or read our <a href="/docs/4.0/getting-started/">getting started guide</a>.</p>-->
       </div>
     </footer>
 

@@ -32,9 +32,10 @@ class Product(models.Model):
     image = models.ImageField(upload_to='product/%Y/%m/%d', **NULLABLE, verbose_name='Фото продукта')
     category = models.ForeignKey(Category, related_name='product', on_delete=models.CASCADE, verbose_name='Категория')
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Цена')
-    available = models.BooleanField(default=True)
+    available = models.BooleanField(default=True,verbose_name='опубликовано')
     created = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания', **NULLABLE)
     update = models.DateTimeField(auto_now=True, verbose_name='Дата изменения', **NULLABLE)
+    views_count = models.IntegerField(default=0, verbose_name="просмотры")
 
     def __str__(self):
         return f'{self.name} ({self.category})'

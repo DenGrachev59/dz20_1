@@ -1,41 +1,112 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse_lazy, reverse
+from django.views.generic import TemplateView, ListView, DetailView, DeleteView, UpdateView, CreateView
+from pytils.translit import slugify
 
 from catalog.models import Category, Product
 
 
-def index(request):
-    context = {
-        'object_list': Category.objects.all()[:3],
+class IndexView(TemplateView):
+    template_name = 'catalog/index.html'
+    extra_context = {
         'title': 'Магазин электроники - Главная'
     }
 
-    return render(request, 'catalog/index.html', context)
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        context_data['object_list'] = Category.objects.all()[:3]
+
+        return context_data
 
 
-def categories(request):
-    context = {
-        'object_list': Category.objects.all(),
-        'title': 'Магазин электроники - все наши категории тораров'
+class CategoryListView(ListView):
+    model = Category
+    extra_context = {
+        'title': 'Магазин электроники - все наши категории товаров'
     }
 
-    return render(request, 'catalog/categories.html', context)
+
+class ProductListView(ListView):
+    model = Product
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        # queryset = queryset.filter(available=True)   # Если раскоментировать будет показывать только активированные товары
+        queryset = queryset.filter(category_id=self.kwargs.get('pk'))
+
+        return queryset
+
+    def get_context_data(self, *args, **kwargs):
+        context_data = super().get_context_data(*args, **kwargs)
+
+        category_item = Category.objects.get(pk=self.kwargs.get('pk'))
+        context_data['category_pk'] = category_item.pk
+        context_data['title'] = f'Магазин электроники - все наши товары в категории {category_item.name}'
+
+        return context_data
 
 
-def category_products(request, pk):
-    category_item = Category.objects.get(pk=pk)
-    context = {
-        'object_list': Product.objects.filter(category_id=pk),
-        'title': f'Магазин электроники - все наши товары в категории {category_item.name}'
-    }
+class ProductDetailView(DetailView):
+    model = Product
 
-    return render(request, 'catalog/products.html', context)
+    # Реализуем счетчик просмотра
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+        self.object.views_count += 1
+        self.object.save()
+
+        return self.object
 
 
-def product_desc(request, pk):
-    product_item = Product.objects.get(pk=pk)
-    context = {
-        'object': product_item,
-        'title': f'{product_item.name}',
-        'description': f'{product_item.description}'
-    }
-    return render(request, 'catalog/product.html', context)
+class ProductCreateView(CreateView):
+    model = Product
+    fields = ('name', 'description', 'image', 'category', 'price', 'available',)
+    success_url = reverse_lazy('catalog:category')
+
+    def form_valid(self, form):  # организация динамических slug для каждого объекта
+        if form.is_valid():
+            new_mat = form.save()
+            new_mat.slug = slugify(new_mat.name)
+            new_mat.save()
+
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('catalog:category', args=[self.object.category.pk])
+
+
+class ProductDeleteView(DeleteView):
+    model = Product
+
+    def get_success_url(
+            self):  # Переопределение метода, чтобы после удаления показывалась категория товара после удаления
+        return reverse('catalog:category', args=[self.object.category.pk])
+
+
+class ProductUpdateView(UpdateView):
+    model = Product
+    fields = ('name', 'description', 'image', 'category', 'price', 'available',)
+    success_url = reverse_lazy('catalog:view')
+
+    def form_valid(self, form):  # организация динамических slug для каждого объекта
+        if form.is_valid():
+            new_mat = form.save()
+            new_mat.slug = slugify(new_mat.name)
+            new_mat.save()
+
+        return super().form_valid(form)
+
+    def get_success_url(self):  # перенаправление на отредактированную карточку товара
+        return reverse('catalog:view', args=[self.kwargs.get('pk')])
+
+
+def toggle_activity(request, pk):
+    product_item = get_object_or_404(Product, pk=pk)
+    if product_item.available:
+        product_item.available = False
+    else:
+        product_item.available = True
+
+    product_item.save()
+
+    return redirect(reverse('catalog:index'))
