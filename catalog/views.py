@@ -1,9 +1,11 @@
+from django.forms import inlineformset_factory
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
 from django.views.generic import TemplateView, ListView, DetailView, DeleteView, UpdateView, CreateView
 from pytils.translit import slugify
 
-from catalog.models import Category, Product
+from catalog.forms import ProductForm, VersionForm
+from catalog.models import Category, Product, Version
 
 
 class IndexView(TemplateView):
@@ -60,8 +62,10 @@ class ProductDetailView(DetailView):
 
 class ProductCreateView(CreateView):
     model = Product
-    fields = ('name', 'description', 'image', 'category', 'price', 'available',)
-    success_url = reverse_lazy('catalog:category')
+    form_class = ProductForm
+
+    # fields = ('name', 'description', 'image', 'category', 'price', 'available',)
+    # success_url = reverse_lazy('catalog:category')
 
     def form_valid(self, form):  # организация динамических slug для каждого объекта
         if form.is_valid():
@@ -85,14 +89,40 @@ class ProductDeleteView(DeleteView):
 
 class ProductUpdateView(UpdateView):
     model = Product
-    fields = ('name', 'description', 'image', 'category', 'price', 'available',)
-    success_url = reverse_lazy('catalog:view')
+    form_class = ProductForm
+    # fields = ('name', 'description', 'image', 'category', 'price', 'available',)
 
-    def form_valid(self, form):  # организация динамических slug для каждого объекта
-        if form.is_valid():
-            new_mat = form.save()
-            new_mat.slug = slugify(new_mat.name)
-            new_mat.save()
+    # success_url = reverse_lazy('catalog:view')
+
+    # def form_valid(self, form):  # организация динамических slug для каждого объекта
+    #     if form.is_valid():
+    #         new_mat = form.save()
+    #         new_mat.slug = slugify(new_mat.name)
+    #         new_mat.save()
+    #
+    #     return super().form_valid(form)
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        VersionFormset = inlineformset_factory(Product, Version, form=VersionForm, extra=0)
+        if self.request.method == 'POST':
+            formset = VersionFormset(self.request.POST, instance=self.object)
+        else:
+            formset = VersionFormset(instance=self.object)
+        context_data['formset'] = formset
+
+        return context_data
+
+
+
+    def form_valid(self, form):
+        context_data = self.get_context_data()
+        formset = context_data['formset']
+        self.object = form.save()
+
+        if formset.is_valid():
+            formset.instance = self.object
+            formset.save()
+
 
         return super().form_valid(form)
 
