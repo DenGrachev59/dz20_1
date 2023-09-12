@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms import inlineformset_factory
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
@@ -60,14 +61,19 @@ class ProductDetailView(DetailView):
         return self.object
 
 
-class ProductCreateView(CreateView):
+class ProductCreateView(LoginRequiredMixin, CreateView):
     model = Product
     form_class = ProductForm
+    login_url = 'users:login'
 
     # fields = ('name', 'description', 'image', 'category', 'price', 'available',)
     # success_url = reverse_lazy('catalog:category')
 
     def form_valid(self, form):  # организация динамических slug для каждого объекта
+        self.object = form.save()
+        self.object.owner = self.request.user
+        self.object.save()
+
         if form.is_valid():
             new_mat = form.save()
             new_mat.slug = slugify(new_mat.name)
@@ -79,31 +85,25 @@ class ProductCreateView(CreateView):
         return reverse('catalog:category', args=[self.object.category.pk])
 
 
-class ProductDeleteView(DeleteView):
+class ProductDeleteView(LoginRequiredMixin, DeleteView):
     model = Product
+    login_url = 'users:login'
+
+
 
     def get_success_url(
             self):  # Переопределение метода, чтобы после удаления показывалась категория товара после удаления
         return reverse('catalog:category', args=[self.object.category.pk])
 
 
-class ProductUpdateView(UpdateView):
+class ProductUpdateView(LoginRequiredMixin, UpdateView):
     model = Product
     form_class = ProductForm
-    # fields = ('name', 'description', 'image', 'category', 'price', 'available',)
+    login_url = 'users:login'
 
-    # success_url = reverse_lazy('catalog:view')
-
-    # def form_valid(self, form):  # организация динамических slug для каждого объекта
-    #     if form.is_valid():
-    #         new_mat = form.save()
-    #         new_mat.slug = slugify(new_mat.name)
-    #         new_mat.save()
-    #
-    #     return super().form_valid(form)
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
-        VersionFormset = inlineformset_factory(Product, Version, form=VersionForm, extra=0)
+        VersionFormset = inlineformset_factory(Product, Version, form=VersionForm, extra=1)
         if self.request.method == 'POST':
             formset = VersionFormset(self.request.POST, instance=self.object)
         else:
@@ -115,11 +115,14 @@ class ProductUpdateView(UpdateView):
 
 
     def form_valid(self, form):
+
         context_data = self.get_context_data()
         formset = context_data['formset']
         self.object = form.save()
 
         if formset.is_valid():
+
+
             formset.instance = self.object
             formset.save()
 

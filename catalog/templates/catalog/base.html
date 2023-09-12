@@ -44,7 +44,14 @@
 
                 <li><a href="{% url 'catalog:index' %}" class="text-white">Главная</a></li>
                 <li><a href="{% url 'catalog:categories' %}" class="text-white">Категории товаров</a></li>
-                <li><a href="{% url 'blog:list' %}" class="text-white">Публикации</a></li>
+                <li><a href="{% url 'blog:list' %}" class="text-white">Публикации</a></li><br>
+                {% if user.is_authenticated  %}
+                  <li><a href="{% url 'users:logout' %}" class="text-blue">Выйти</a></li>
+                  <li><a href="{% url 'users:profile' %}" class="text-blue">Профиль</a></li>
+                {% else %}
+                  <li><a href="{% url 'users:login' %}" class="text-blue">Войти</a></li>
+                  <li><a href="{% url 'users:register' %}" class="text-blue">Регистрация</a></li>
+                {% endif %}
 
               </ul>
             </div>
@@ -90,9 +97,16 @@
       <div class="container">
         <p class="float-right">
 
-          <a href="{% url 'catalog:index' %}">Перейти на Главную страницу</a><br>
-          <a href="{% url 'catalog:categories' %}">Все категории</a><br>
-          <a href="{% url 'blog:list' %}"> Перейти на страницу c публикациями</a><br>
+          <li><a href="{% url 'catalog:index' %}">Перейти на Главную страницу</a></li>
+          <li><a href="{% url 'catalog:categories' %}">Все категории</a><br>
+          <li><a href="{% url 'blog:list' %}"> Перейти на страницу c публикациями</a></li>
+          {% if user.is_authenticated  %}
+                  <li><a href="{% url 'users:logout' %}" class="text-blue">Выйти</a></li>
+                  <li><a href="{% url 'users:profile' %}" class="text-blue">Профиль</a></li>
+                {% else %}
+                  <li><a href="{% url 'users:login' %}" class="text-blue">Войти</a></li>
+                  <li><a href="{% url 'users:register' %}" class="text-blue">Регистрация</a></li>
+                {% endif %}
 
         </p>
 <!--        <p>Album example is &copy; Bootstrap, but please download and customize it for yourself!</p>-->

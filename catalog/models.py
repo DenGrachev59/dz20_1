@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.urls import reverse
 
@@ -36,6 +37,8 @@ class Product(models.Model):
     created = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания', **NULLABLE)
     update = models.DateTimeField(auto_now=True, verbose_name='Дата изменения', **NULLABLE)
     views_count = models.IntegerField(default=0, verbose_name="просмотры")
+
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, **NULLABLE, verbose_name='владелец')
 
     def __str__(self):
         return f'{self.name} ({self.category})'

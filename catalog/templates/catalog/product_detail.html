@@ -25,6 +25,13 @@
                     <div class="card-footer">
                         Просмотры: {{ object.views_count }}
                     </div>
+                    <div class="card-footer"><span class="text-muted">
+                      {% if object %}
+                        товар завел : {{object.owner|  default:"Нет данных"}}
+
+                        {% endif %}
+                      <br>
+                      </span></div>
                     <div class="card-footer">
                         <a href="{% url 'catalog:category' object.category.pk %}" type="button" class="btn btn-sm btn-outline-secondary">Назад</a>
                         <a href="{% url 'catalog:product_update' object.pk %}" type="button" class="btn btn-sm btn-outline-secondary">Редактирование</a>
