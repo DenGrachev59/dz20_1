@@ -20,3 +20,7 @@ class UserPofileForm(StyleFormMixin, UserChangeForm):
         super().__init__(*args, **kwargs)
 
         self.fields['password'].widget = forms.HiddenInput()
+
+
+class UserRecoveryPasswordForm(forms.Form):
+    email_recovery = forms.EmailField(label='Почта')
