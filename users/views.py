@@ -20,6 +20,7 @@ from services.mixins import UserIsNotAuthenticated
 from users.forms import UserRegisterForm, UserPofileForm, UserRecoveryPasswordForm
 
 from users.models import User
+from users.services import send_new_password
 
 
 class GetContextDataMixin:
@@ -85,15 +86,10 @@ class ProfileView(GetContextDataMixin, UpdateView):
 
 def generate_new_password(request):
     new_password = ''.join([str(random.randint(0, 9)) for _ in range(12)])
-    send_mail(
-        subject='Вы сменили пароль',
-        message=f'Ваш новый пароль :{new_password}',
-        from_email=settings.EMAIL_HOST_USER,
-        recipient_list=[request.user.email]
 
-    )
     request.user.set_password(new_password)
     request.user.save()
+    send_new_password(request.user.email, new_password)
 
     return redirect(reverse('users:login'))
 

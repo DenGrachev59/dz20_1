@@ -1,4 +1,6 @@
+from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.cache import cache
 from django.forms import inlineformset_factory
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
@@ -29,8 +31,13 @@ class CategoryListView(ListView):
     }
 
 
+
+
 class ProductListView(ListView):
     model = Product
+
+
+
 
     def get_queryset(self, *args, **kwargs):
         queryset = super().get_queryset(*args, **kwargs)
@@ -40,13 +47,32 @@ class ProductListView(ListView):
         return queryset
 
     def get_context_data(self, *args, **kwargs):
-        context_data = super().get_context_data(*args, **kwargs)
 
+        context_data = super().get_context_data(*args, **kwargs)
         category_item = Category.objects.get(pk=self.kwargs.get('pk'))
         context_data['category_pk'] = category_item.pk
         context_data['title'] = f'Магазин электроники - все наши товары в категории {category_item.name}'
+        context_data['category_pk']
 
         return context_data
+
+        # if settings.CACHE_ENABLED:
+        #     key = 'category_pk'
+        #     category_pk = cache.get(key)
+        #     if category_pk is None:
+        #         context_data = super().get_context_data(*args, **kwargs)
+        #         category_item = Category.objects.get(pk=self.kwargs.get('pk'))
+        #         category_pk = category_item.pk
+        #         cache.set(key, category_pk)
+        #         context_data['title'] = f'Магазин электроники - все наши товары в категории {category_item.name}'
+        #         context_data['category_pk']
+        #     else:
+        #         context_data = super().get_context_data(*args, **kwargs)
+        #         category_item = Category.objects.get(pk=self.kwargs.get('pk'))
+        #         context_data['category_pk'] = category_item.pk
+        #         context_data['title'] = f'Магазин электроники - все наши товары в категории {category_item.name}'
+        #         context_data['category_pk']
+        # return context_data
 
 
 class ProductDetailView(DetailView):
